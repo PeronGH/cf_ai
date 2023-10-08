@@ -13,12 +13,17 @@ export class CloudflareAi {
   }
 
   async run(model: string, input: unknown) {
+    const isBinary = input instanceof Uint8Array ||
+      input instanceof ReadableStream ||
+      input instanceof Blob ||
+      input instanceof ArrayBuffer;
+
     const response = await fetch(
       `https://api.cloudflare.com/client/v4/accounts/${this.#accountId}/ai/run/${model}`,
       {
         headers: { Authorization: `Bearer ${this.#apiToken}` },
         method: "POST",
-        body: JSON.stringify(input),
+        body: isBinary ? input : JSON.stringify(input),
       },
     );
 
