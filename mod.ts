@@ -12,13 +12,13 @@ export class CloudflareAi {
     this.#apiToken = apiToken;
   }
 
-  async run(model: string, input: unknown) {
+  run(model: string, input: unknown) {
     const isBinary = input instanceof Uint8Array ||
       input instanceof ReadableStream ||
       input instanceof Blob ||
       input instanceof ArrayBuffer;
 
-    const response = await fetch(
+    return fetch(
       `https://api.cloudflare.com/client/v4/accounts/${this.#accountId}/ai/run/${model}`,
       {
         headers: { Authorization: `Bearer ${this.#apiToken}` },
@@ -26,13 +26,5 @@ export class CloudflareAi {
         body: isBinary ? input : JSON.stringify(input),
       },
     );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error("Cloudflare AI returned an error", { cause: result });
-    }
-
-    return result;
   }
 }
